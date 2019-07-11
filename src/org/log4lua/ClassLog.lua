@@ -8,25 +8,11 @@ local fakeLogger = {
 	end
 }
 
-local function sanitize(sant)
-	if (typeof(sant) == "string") then
-		return sant
-	end
-
-	if (typeof(sant) == "table") then
-		return table.concat(sant, ", ")
-	end
-
-	return tostring(sant)
-end
-
 local deepCopy
 deepCopy = function(orig)
-	local originalType, copy = typeof(orig)
+	local originalType, copy = typeof(orig), { }
 
 	if (originalType == 'table') then
-		copy = { }
-
 		for originalKey, originalValue in next, orig, nil do
 			copy[deepCopy(originalKey)] = deepCopy(originalValue)
 		end
@@ -35,7 +21,7 @@ deepCopy = function(orig)
 	else
 		copy = orig
 	end
-	
+
 	return copy
 end
 
