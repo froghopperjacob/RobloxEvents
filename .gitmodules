@@ -7,3 +7,6 @@
 [submodule "modules/fdk"]
 	path = modules/fdk
 	url = https://github.com/TheFlamingBlaster/FDK
+[submodule "modules/log4lua"]
+	path = modules/log4lua
+	url = https://github.com/froghopperjacob/Log4Lua

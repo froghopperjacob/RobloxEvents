@@ -9,7 +9,8 @@ local loadModules = {
 	{ "src", "src" },
 	{ "tests", "tests"},
 	{ "FDK", "modules/fdk/src" },
-	{ "TestEZ", "modules/testez/lib" }
+	{ "TestEZ", "modules/testez/lib" },
+	{ "Log4Lua", "modules/log4lua/src" }
 }
 
 -- This makes sure we can load Lemur and other libraries that depend on init.lua
@@ -39,6 +40,7 @@ end
 Root.FDK.FDK.Parent = Root.src
 Root.FDK.BaseClass.Parent = Root.src
 Root.src.org.Parent = Root.tests
+Root.Log4Lua.org.log4lua.Parent = Root.tests.org
 
 local TestEZ = habitat:require(Root.TestEZ)
 

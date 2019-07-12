@@ -1,20 +1,18 @@
-<h1 align="center">Log4Lua</h1>
+<h1 align="center">Roblox Events</h1>
 <div align="center">
-	<a href="https://github.com/froghopperjacob/Log4Lua/tree/master/LICENSE">
+	<a href="https://github.com/froghopperjacob/RobloxEvents/tree/master/LICENSE">
 		<img src="https://img.shields.io/badge/License-Apache%202.0-brightgreen.svg?style=flat-square" alt="Lisence" />
 	</a>
-	<a href="https://travis-ci.com/froghopperjacob/Log4Lua">
-		<img src="https://img.shields.io/travis/com/froghopperjacob/Log4Lua.svg?style=flat-square" alt="Travis" />
+	<a href="https://travis-ci.com/froghopperjacob/RobloxEvents">
+		<img src="https://img.shields.io/travis/com/froghopperjacob/RobloxEvents.svg?style=flat-square" alt="Travis" />
 	</a>
-	<a href="https://coveralls.io/github/froghopperjacob/Log4Lua?branch=master">
-		<img src="https://img.shields.io/coveralls/github/froghopperjacob/Log4Lua.svg?style=flat-square" alt="Coveralls" />
+	<a href="https://coveralls.io/github/froghopperjacob/RobloxEvents?branch=master">
+		<img src="https://img.shields.io/coveralls/github/froghopperjacob/RobloxEvents.svg?style=flat-square" alt="Coveralls" />
 	</a>
 </div>
 
 <div align="center">
-	Log4Lua is a small logger that acts like <a href="https://www.slf4j.org/">SLF4J</a>.
-</div>
-
+	Roblox Events is a small event system build [FDK](https://github.com/TheFlamingBlaster/FDK) like RBXScriptSignal
 <div>&nbsp;</div>
 
 ## Index
@@ -25,100 +23,88 @@
 
 ## Setup
 1. Install [FDK](https://github.com/TheFlamingBlaster/FDK).
-2. Install Log4Lua through FDK's plugin OR the [releases](https://github.com/froghopperjacob/Log4Lua/releases).
+2. Install Roblox Events through FDK's plugin OR the [releases](https://github.com/froghopperjacob/RobloxEvents/releases).
 
 ## Usage
-Importing Log4Lua:
+Importing RobloxEvents:
 ```lua
-local Log4Lua = import("org.fdk.log4lua.Log")
+local RobloxEvent = import("org.RobloxEvents.Event")
 ```
 
-After importing it you need to provide a valid config file
-The default config file that is provided is:
+After importing it you need to provide can create a Event like:
 ```lua
-local defaultConfig = {
-	["Debug"] = false,
-	["Info"] = true,
-	["Warn"] = true,
-	["Error"] = true,
-
-	["IncludeTime"] = true,
-
-	["Pattern"] = "[%TYPE% | %TIME% | %CLASS%] - %MESSAGE%",
-	["ReplacePattern"] = "{}"
-
-	["FunctionCalls"] = {
-		["Debug"] = print,
-		["Info"] = print,
-		["Warn"] = warn,
-		["Error"] = error
-	}
-}
+local event = RobloxEvent() -- optional argument boolean debug
 ```
 
-Getting the log handler:
+Connecting a function:
 ```lua
-local Handler = Log4Lua:getLogger(Class)
+local connection = event:connect(function()
+	print('fired')
+end)
 ```
 
-The handler allows you to directly log like:
+Yielding the current thread until the event is called:
 ```lua
-Handler:warn("1 {} 3 {}", 2, 4) -- 1 2 3 4
+event:wait() -- THIS HAS NOT BEEN IMPLMENTED
 ```
 
-The handler allows you to also use functions like:
+Disconnecting all connections:
 ```lua
-Handler:atDebug()
-	:addArgument("40°")
-	:log("It is currently {}")
+event:disconnectAll()
+```
+
+Disconnecting a current connection:
+```lua
+connection:disconnect()
+```
+
+Destroying a unused event:
+```lua
+event:destroy()
 ```
 
 ## Examples
-Main Class:
-```lua
-local logConfig = {
-	["Debug"] = true
-}
 
-return function()
-	local Main = BaseClass:new("Main")
-
-	local Log4Lua = import("org.fdk.log4lua.Log")(logConfig)
-	local Handler = Log4Lua:getLogger(Main)
-
-	Main.hello = function(name)
-		return Handler.info("Hello {}!", name)
-	end
-
-	return Main
-end
-```
-
-Other Class:
+Example 1:
 ```lua
 return function()
-	local Other = BaseClass:new("Other")
-	local Handler = import("org.fdk.log4lua.Log"):getLogger(Other)
+	local Event = import("org.robloxevents.Event")
+	local set, get = Event(), Event() -- All databases get/sets
 
-	Other.bye = function(name)
-		return Handler.atDebug()
-			.addArgument(name)
-			.log("Bye {}!")
+	local Database = BaseClass:new("Database")
+
+	Database.Database = function(self, name)
+		self.name = name
+		self.data = { }
+
+		self.get = Event() -- This databases get/sets
+		self.set = Event()
+
+		self.getEvent = self.get
+		self.setEvent = self.set
+
+		return self
 	end
 
-	return Other
+	Database.get = function(self, key, default)
+		self.get:fire(key, default)
+		get:fire(self.name, key, default)
+
+		return self.data[key] or default
+	end
+
+	Database.set = function(self, key, value)
+		self.set:fire(key, value)
+		set:fire(self.name, key, value)
+
+		self.data[key] = value
+
+		return true
+	end
+
+	Database.allDataGetEvent = get
+	Database.allDataSetEvent = set
+
+	return Database
 end
 ```
-
-Running:
-```lua
-local FDKModule = game:GetService("ReplicatedStorage"):FindFirstChild("FDK")
-local FDK = require(fdkModule)
-FDK:wra pEnvironment(getfenv())
-
-local Main = import("game.Main")
-local Other = import("game.Other")
-
-Main.hello("World") -- This would return true and print: [INFO | TIME | Main] - Hello World!
-
-Other.bye("World") -- This would return true and print: [DEBUG | TIME | Other] - Bye World!
