@@ -12,7 +12,8 @@
 </div>
 
 <div align="center">
-	Roblox Events is a small event system build [FDK](https://github.com/TheFlamingBlaster/FDK) like RBXScriptSignal
+	Roblox Events is a small event system built on <a> href ="https://github.com/TheFlamingBlaster/FDK">FDK</a> like RBXScriptSignal
+</div>
 <div>&nbsp;</div>
 
 ## Index
