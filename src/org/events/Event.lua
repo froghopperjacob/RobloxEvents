@@ -12,32 +12,41 @@ return function()
 		self.functions = { }
 		self.threads = { }
 
-		local changeLog
-
-		if (debug and not usingDebug) then
-			changeLog = true
-		elseif (not debug and usingDebug) then
-			changeLog = false
-		end
-
-		if (changeLog ~= nil) then
-			Log = LogClass({
-				["Debug"] = changeLog
-			})
-
-			usingDebug = changeLog
-		end
-
 		self.Log = Log
-		self.EventLogger = Log:getLogger(self)
+		self.EventLogger = Log:getLogger(self, {
+			["Debug"] = debug or false	
+		})
 
 		return self
+	end
+
+	Event.new = function(self, debug)
+		if (typeof(debug) ~= "boolean") then
+			return EventLogger:atError()
+				:addArgument("boolean")
+				:addArgument(typeof(debug))
+				:log("Expected {} got {}")
+		end
+
+		if (self.functions) then
+			return EventLogger:atError()
+				:log("Attempted to create a new event in a established event?")
+		end
+
+		return self(debug)
 	end
 
 	Event.connect = function(self, connectionFunction)
 		if (not self.functions) then
 			return EventLogger:atError()
 				:log("Attempted to connect to a invalid event")
+		end
+
+		if (typeof(connectionFunction) ~= "function") then
+			return EventLogger:atError()
+				:addArgument("function")
+				:addArgument(typeof(connectionFunction))
+				:log("Expected {} got {}")
 		end
 
 		self.functions[connectionFunction] = connectionFunction
@@ -92,6 +101,11 @@ return function()
 	end
 
 	Event.disconnectAll = function(self)
+		if (not self.functions) then
+			return EventLogger:atError()
+				:log("Attempted to connect to a invalid event")
+		end
+
 		self.functions = { }
 
 		self.EventLogger:atDebug()
@@ -101,6 +115,11 @@ return function()
 	end
 
 	Event.destroy = function(self)
+		if (not self.functions) then
+			return EventLogger:atError()
+				:log("Attempted to connect to a invalid event")
+		end
+
 		self:unregister()
 		self.EventLogger:destroy()
 		self.Log:destroy()

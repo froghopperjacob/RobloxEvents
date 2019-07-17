@@ -34,7 +34,7 @@ local RobloxEvent = import("org.RobloxEvents.Event")
 
 After importing it you need to provide can create a Event like:
 ```lua
-local event = RobloxEvent() -- optional argument boolean debug
+local event = RobloxEvent.new() -- optional argument boolean debug
 ```
 
 Connecting a function:
